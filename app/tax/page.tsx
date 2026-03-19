@@ -29,6 +29,7 @@ export default function TaxPage() {
   const [result, setResult] = useState<ReportResult | null>(null);
   const [error, setError] = useState("");
   const [treasuryWallet, setTreasuryWallet] = useState("");
+  const [isDemo, setIsDemo] = useState(false);
 
   async function connectWallet() {
     if (!window.solana?.isPhantom) {
@@ -51,19 +52,30 @@ export default function TaxPage() {
     }
   }
 
+  function enterDemoMode() {
+    setIsDemo(true);
+    setWallet(process.env.NEXT_PUBLIC_DEMO_WALLET ?? "Demo wallet");
+    setBalance(10);
+    setApiKey(process.env.NEXT_PUBLIC_DEMO_API_KEY ?? "");
+    setStep("form");
+  }
+
   async function generateReport() {
-    if (balance < 10) {
+    if (!isDemo && balance < 10) {
       setError(`Insufficient balance ($${balance.toFixed(2)}). You need $10.00 USDC.`);
       setStep("error");
       return;
     }
     setStep("processing");
     try {
+      const authKey = isDemo
+        ? process.env.NEXT_PUBLIC_DEMO_API_KEY
+        : apiKey;
       const res = await fetch("/api/tax", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${authKey}`,
         },
         body: JSON.stringify({ wallet, year }),
       });
@@ -139,6 +151,19 @@ export default function TaxPage() {
                 Connect Phantom Wallet →
               </button>
 
+              <div className="relative flex items-center gap-3">
+                <div className="flex-1 border-t border-[#1f1f2e]" />
+                <span className="text-gray-600 text-xs">or</span>
+                <div className="flex-1 border-t border-[#1f1f2e]" />
+              </div>
+
+              <button
+                onClick={enterDemoMode}
+                className="w-full border border-[#1f1f2e] hover:border-violet-500/50 text-gray-400 hover:text-white font-medium py-3 rounded-md transition-colors text-sm"
+              >
+                Try Demo — no wallet needed
+              </button>
+
               <p className="text-gray-600 text-xs text-center">
                 No email. No signup. Your wallet is your identity.
               </p>
@@ -149,7 +174,14 @@ export default function TaxPage() {
           {step === "form" && (
             <>
               <div>
-                <h1 className="text-2xl font-bold mb-1">Generate Tax Report</h1>
+                <div className="flex items-center gap-3 mb-1">
+                  <h1 className="text-2xl font-bold">Generate Tax Report</h1>
+                  {isDemo && (
+                    <span className="text-xs font-medium bg-violet-500/20 text-violet-400 border border-violet-500/30 px-2 py-0.5 rounded">
+                      DEMO
+                    </span>
+                  )}
+                </div>
                 <p className="text-gray-400 text-sm font-mono">
                   {wallet.slice(0, 8)}...{wallet.slice(-8)}
                 </p>

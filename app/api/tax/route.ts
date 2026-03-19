@@ -6,21 +6,34 @@ import { buildPriceCache, applyPrices } from "@/lib/priceCache";
 import { generateCsv, generateSummary } from "@/lib/csvGenerator";
 
 const TAX_REPORT_COST = 10.0;
-const CURRENT_YEAR = new Date().getFullYear() - 1; // default to last tax year
+const CURRENT_YEAR = new Date().getFullYear() - 1;
+
+function isDemoKey(authHeader: string | null): boolean {
+  const demoKey = process.env.DEMO_API_KEY;
+  if (!demoKey || !authHeader) return false;
+  return authHeader === `Bearer ${demoKey}`;
+}
 
 // POST /api/tax — generate a tax report
 export async function POST(req: NextRequest) {
-  // 1. Authorize and deduct balance
-  const auth = await authorizeRequest(
-    req.headers.get("authorization"),
-    TAX_REPORT_COST
-  );
-  if (!auth.ok) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  const authHeader = req.headers.get("authorization");
+  const demo = isDemoKey(authHeader);
+
+  // 1. Authorize — skip balance deduction for demo key
+  let keyId = "demo";
+  if (!demo) {
+    const auth = await authorizeRequest(authHeader, TAX_REPORT_COST);
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+    keyId = auth.keyData.id;
   }
 
   const body = await req.json();
-  const wallet: string = body.wallet;
+  // Demo mode: always use the configured demo wallet
+  const wallet: string = demo
+    ? (process.env.DEMO_WALLET ?? body.wallet)
+    : body.wallet;
   const year: number = body.year ?? CURRENT_YEAR;
 
   if (!wallet) {
@@ -41,7 +54,7 @@ export async function POST(req: NextRequest) {
   const { data: report, error: insertError } = await supabase
     .from("tax_reports")
     .insert({
-      api_key_id: auth.keyData.id,
+      api_key_id: demo ? null : keyId,
       wallet_address: wallet,
       tax_year: year,
       status: "processing",
