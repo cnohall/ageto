@@ -38,7 +38,11 @@ export async function GET(req: NextRequest) {
       .single();
 
     if (error || !newKey) {
-      return NextResponse.json({ error: "Failed to create API key" }, { status: 500 });
+      console.error("Supabase insert error:", error);
+      return NextResponse.json(
+        { error: "Failed to create API key", detail: error?.message },
+        { status: 500 }
+      );
     }
 
     keyRow = newKey;

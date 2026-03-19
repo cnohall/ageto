@@ -54,22 +54,22 @@ print(res.json())`;
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black text-green-400 font-mono">
+    <main className="min-h-screen bg-[#0a0a0a] text-green-300 font-mono">
       {/* Nav */}
-      <nav className="border-b border-green-900 px-6 py-4 flex items-center justify-between">
-        <span className="text-green-400 font-bold text-lg tracking-tight">
+      <nav className="border-b border-green-800 px-6 py-4 flex items-center justify-between">
+        <span className="text-green-300 font-bold text-lg tracking-tight">
           TokenProbe
         </span>
-        <div className="flex items-center gap-6 text-sm text-green-600">
-          <a href="#pricing" className="hover:text-green-400 transition-colors">
+        <div className="flex items-center gap-6 text-sm text-green-500">
+          <a href="#pricing" className="hover:text-green-300 transition-colors">
             Pricing
           </a>
-          <a href="#docs" className="hover:text-green-400 transition-colors">
+          <a href="#docs" className="hover:text-green-300 transition-colors">
             Docs
           </a>
           <a
             href="/get-started"
-            className="border border-green-700 px-3 py-1 hover:border-green-400 hover:text-green-400 transition-colors"
+            className="border border-green-600 px-3 py-1 hover:border-green-300 hover:text-green-300 transition-colors"
           >
             Get API Key →
           </a>
@@ -78,15 +78,15 @@ export default function Home() {
 
       {/* Hero */}
       <section className="max-w-4xl mx-auto px-6 pt-24 pb-16">
-        <div className="text-green-600 text-sm mb-4 tracking-widest uppercase">
+        <div className="text-green-500 text-sm mb-4 tracking-widest uppercase">
           Solana · AI Agents · Pay per query
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold text-green-400 leading-tight mb-6">
+        <h1 className="text-4xl md:text-5xl font-bold text-green-300 leading-tight mb-6">
           Token intelligence
           <br />
           for autonomous agents.
         </h1>
-        <p className="text-green-600 text-lg mb-10 max-w-xl">
+        <p className="text-green-500 text-lg mb-10 max-w-xl">
           One endpoint returns price, volume, liquidity, and on-chain holder
           concentration for any Solana token. No API keys to manage — deposit
           USDC once, query forever.
@@ -101,14 +101,14 @@ export default function Home() {
 
       {/* Example response */}
       <section className="max-w-4xl mx-auto px-6 pb-16">
-        <div className="border border-green-900 rounded">
-          <div className="border-b border-green-900 px-4 py-2 flex items-center gap-2">
-            <span className="text-green-600 text-xs">GET</span>
-            <span className="text-green-400 text-xs">
+        <div className="border border-green-800 rounded">
+          <div className="border-b border-green-800 px-4 py-2 flex items-center gap-2">
+            <span className="text-green-500 text-xs">GET</span>
+            <span className="text-green-300 text-xs">
               /api/token/DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263
             </span>
           </div>
-          <pre className="p-4 text-sm text-green-400 overflow-x-auto">
+          <pre className="p-4 text-sm text-green-300 overflow-x-auto">
             {EXAMPLE_RESPONSE}
           </pre>
         </div>
@@ -116,7 +116,7 @@ export default function Home() {
 
       {/* How it works */}
       <section className="max-w-4xl mx-auto px-6 pb-16">
-        <h2 className="text-green-600 text-xs tracking-widest uppercase mb-8">
+        <h2 className="text-green-500 text-xs tracking-widest uppercase mb-8">
           How it works
         </h2>
         <div className="grid md:grid-cols-3 gap-6">
@@ -137,10 +137,10 @@ export default function Home() {
               desc: "Call the endpoint from any language. $0.01 is deducted per call. Top up when needed.",
             },
           ].map(({ step, title, desc }) => (
-            <div key={step} className="border border-green-900 p-5">
-              <div className="text-green-800 text-xs mb-3">{step}</div>
-              <div className="text-green-400 font-bold mb-2">{title}</div>
-              <div className="text-green-600 text-sm">{desc}</div>
+            <div key={step} className="border border-green-800 p-5">
+              <div className="text-green-600 text-xs mb-3">{step}</div>
+              <div className="text-green-300 font-bold mb-2">{title}</div>
+              <div className="text-green-500 text-sm">{desc}</div>
             </div>
           ))}
         </div>
@@ -148,13 +148,13 @@ export default function Home() {
 
       {/* Pricing */}
       <section id="pricing" className="max-w-4xl mx-auto px-6 pb-16">
-        <h2 className="text-green-600 text-xs tracking-widest uppercase mb-8">
+        <h2 className="text-green-500 text-xs tracking-widest uppercase mb-8">
           Pricing
         </h2>
-        <div className="border border-green-900 p-6 inline-block">
-          <div className="text-4xl font-bold text-green-400 mb-1">$0.01</div>
-          <div className="text-green-600 text-sm mb-4">per API call</div>
-          <ul className="text-green-600 text-sm space-y-2">
+        <div className="border border-green-800 p-6 inline-block">
+          <div className="text-4xl font-bold text-green-300 mb-1">$0.01</div>
+          <div className="text-green-500 text-sm mb-4">per API call</div>
+          <ul className="text-green-500 text-sm space-y-2">
             <li>→ $5 minimum top-up (500 calls)</li>
             <li>→ Pay in USDC on Solana</li>
             <li>→ No subscription, no expiry</li>
@@ -165,23 +165,23 @@ export default function Home() {
 
       {/* Code examples */}
       <section id="docs" className="max-w-4xl mx-auto px-6 pb-16">
-        <h2 className="text-green-600 text-xs tracking-widest uppercase mb-8">
+        <h2 className="text-green-500 text-xs tracking-widest uppercase mb-8">
           Quick start
         </h2>
         <div className="space-y-4">
-          <div className="border border-green-900 rounded">
-            <div className="border-b border-green-900 px-4 py-2 text-green-600 text-xs">
+          <div className="border border-green-800 rounded">
+            <div className="border-b border-green-800 px-4 py-2 text-green-500 text-xs">
               curl
             </div>
-            <pre className="p-4 text-sm text-green-400 overflow-x-auto">
+            <pre className="p-4 text-sm text-green-300 overflow-x-auto">
               {CURL_EXAMPLE}
             </pre>
           </div>
-          <div className="border border-green-900 rounded">
-            <div className="border-b border-green-900 px-4 py-2 text-green-600 text-xs">
+          <div className="border border-green-800 rounded">
+            <div className="border-b border-green-800 px-4 py-2 text-green-500 text-xs">
               python
             </div>
-            <pre className="p-4 text-sm text-green-400 overflow-x-auto">
+            <pre className="p-4 text-sm text-green-300 overflow-x-auto">
               {PYTHON_EXAMPLE}
             </pre>
           </div>
@@ -189,7 +189,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-green-900 px-6 py-6 text-center text-green-800 text-xs">
+      <footer className="border-t border-green-800 px-6 py-6 text-center text-green-600 text-xs">
         TokenProbe · Solana token intelligence for AI agents
       </footer>
     </main>
