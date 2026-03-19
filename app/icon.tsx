@@ -8,19 +8,26 @@ export default function Icon() {
     (
       <div
         style={{
-          background: "#000",
+          background: "#0d0d12",
           width: "100%",
           height: "100%",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontFamily: "monospace",
-          fontSize: 20,
-          fontWeight: 700,
-          color: "#4ade80",
+          borderRadius: 6,
         }}
       >
-        TP
+        <div
+          style={{
+            display: "flex",
+            fontFamily: "sans-serif",
+            fontWeight: 700,
+            fontSize: 14,
+          }}
+        >
+          <span style={{ color: "#a78bfa" }}>S</span>
+          <span style={{ color: "#ffffff" }}>R</span>
+        </div>
       </div>
     ),
     { ...size }

@@ -28,7 +28,7 @@ export default function TaxPage() {
   const [year, setYear] = useState(new Date().getFullYear() - 1);
   const [result, setResult] = useState<ReportResult | null>(null);
   const [error, setError] = useState("");
-  const [progress, setProgress] = useState("");
+  const [treasuryWallet, setTreasuryWallet] = useState("");
 
   async function connectWallet() {
     if (!window.solana?.isPhantom) {
@@ -39,11 +39,11 @@ export default function TaxPage() {
       const resp = await window.solana.connect();
       const w = resp.publicKey.toString();
       setWallet(w);
-
       const res = await fetch(`/api/keys?wallet=${w}`);
       const data = await res.json();
       setApiKey(data.key);
       setBalance(data.balance_usd ?? 0);
+      setTreasuryWallet(data.treasury_wallet ?? "");
       setStep("form");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to connect wallet");
@@ -53,16 +53,11 @@ export default function TaxPage() {
 
   async function generateReport() {
     if (balance < 10) {
-      setError(
-        `Insufficient balance ($${balance.toFixed(2)}). You need $10.00 USDC. Top up at /get-started.`
-      );
+      setError(`Insufficient balance ($${balance.toFixed(2)}). You need $10.00 USDC.`);
       setStep("error");
       return;
     }
-
     setStep("processing");
-    setProgress("Fetching your transactions from Solana...");
-
     try {
       const res = await fetch("/api/tax", {
         method: "POST",
@@ -72,14 +67,8 @@ export default function TaxPage() {
         },
         body: JSON.stringify({ wallet, year }),
       });
-
-      setProgress("Processing transactions and looking up prices...");
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error ?? "Report generation failed");
-      }
-
+      if (!res.ok) throw new Error(data.error ?? "Report generation failed");
       setResult(data);
       setStep("done");
     } catch (err) {
@@ -94,51 +83,64 @@ export default function TaxPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `solana-taxes-${year}-${wallet.slice(0, 8)}.csv`;
+    a.download = `solreceipt-${year}-${wallet.slice(0, 8)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
 
+  function copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text);
+  }
+
   return (
-    <main className="min-h-screen bg-[#0a0a0a] text-green-300 font-mono flex flex-col">
-      <nav className="border-b border-green-800 px-6 py-4 flex items-center justify-between">
-        <a href="/" className="text-green-300 font-bold text-lg tracking-tight">
-          TokenProbe
+    <main className="min-h-screen bg-[#0d0d12] text-white flex flex-col">
+
+      {/* Nav */}
+      <nav className="border-b border-[#1f1f2e] px-6 py-4 flex items-center justify-between">
+        <a href="/" className="flex items-center gap-1">
+          <span className="text-violet-400 font-bold text-lg">Sol</span>
+          <span className="text-white font-bold text-lg">Receipt</span>
         </a>
-        <span className="text-green-600 text-xs">Solana Tax Export</span>
+        <span className="text-gray-500 text-xs">Solana Tax Export · $10/wallet</span>
       </nav>
 
       <div className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-lg space-y-6">
+        <div className="w-full max-w-md space-y-5">
 
           {/* Connect */}
           {step === "connect" && (
             <>
               <div>
-                <h1 className="text-2xl font-bold mb-2">Solana Tax Export</h1>
-                <p className="text-green-500 text-sm mb-1">
-                  Get a clean CSV of all your Solana taxable events — swaps, transfers, and airdrops — with USD values.
-                </p>
-                <p className="text-green-600 text-xs">
-                  $10 per wallet per year · No subscription · Works with Jupiter, pump.fun, Raydium
+                <h1 className="text-2xl font-bold mb-2">Export your Solana taxes</h1>
+                <p className="text-gray-400 text-sm">
+                  Connect your Phantom wallet to get started. $10 USDC per wallet per year.
                 </p>
               </div>
+
+              <div className="bg-[#13131a] border border-[#1f1f2e] rounded-lg p-5 space-y-2 text-sm">
+                <div className="text-gray-500 text-xs font-medium uppercase tracking-wide mb-3">What you get</div>
+                {[
+                  "All swaps — Jupiter, Raydium, pump.fun",
+                  "Transfers in and out",
+                  "USD value at time of transaction",
+                  "CSV ready for TurboTax or your accountant",
+                ].map((t) => (
+                  <div key={t} className="flex gap-2 text-gray-400">
+                    <span className="text-violet-400 shrink-0">→</span>
+                    {t}
+                  </div>
+                ))}
+              </div>
+
               <button
                 onClick={connectWallet}
-                className="w-full border border-green-400 px-6 py-3 hover:bg-green-400 hover:text-black transition-colors font-bold text-green-300"
+                className="w-full bg-violet-600 hover:bg-violet-500 text-white font-semibold py-3 rounded-md transition-colors"
               >
                 Connect Phantom Wallet →
               </button>
-              <div className="border border-green-800 p-4 text-green-600 text-xs space-y-1">
-                <div className="text-green-500 font-bold mb-2">What you get:</div>
-                <div>→ All swaps (Jupiter, Raydium, pump.fun)</div>
-                <div>→ Token transfers in and out</div>
-                <div>→ Approximate USD value at time of transaction</div>
-                <div>→ CSV ready for your accountant or TurboTax</div>
-              </div>
-              <p className="text-green-700 text-xs">
-                DISCLAIMER: This is a data preparation tool, not tax advice.
-                USD values are approximate. Consult a tax professional for filing.
+
+              <p className="text-gray-600 text-xs text-center">
+                No email. No signup. Your wallet is your identity.
               </p>
             </>
           )}
@@ -148,71 +150,81 @@ export default function TaxPage() {
             <>
               <div>
                 <h1 className="text-2xl font-bold mb-1">Generate Tax Report</h1>
-                <p className="text-green-500 text-sm">
-                  Wallet:{" "}
-                  <span className="text-green-300">
-                    {wallet.slice(0, 8)}...{wallet.slice(-8)}
-                  </span>
-                </p>
-                <p className="text-green-500 text-sm">
-                  Balance:{" "}
-                  <span className={balance >= 10 ? "text-green-300" : "text-yellow-500"}>
-                    ${balance.toFixed(2)} USD
-                  </span>
-                  {balance < 10 && (
-                    <span className="text-yellow-500">
-                      {" "}— need $10.00 to generate report.{" "}
-                      <a href="/get-started" className="underline">
-                        Top up →
-                      </a>
-                    </span>
-                  )}
+                <p className="text-gray-400 text-sm font-mono">
+                  {wallet.slice(0, 8)}...{wallet.slice(-8)}
                 </p>
               </div>
 
-              <div className="border border-green-800">
-                <div className="border-b border-green-800 px-4 py-2 text-green-500 text-xs">
-                  tax year
+              {/* Balance */}
+              <div className="bg-[#13131a] border border-[#1f1f2e] rounded-lg p-4">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-gray-500 text-xs uppercase tracking-wide">Balance</span>
+                  <span className={`text-sm font-semibold ${balance >= 10 ? "text-white" : "text-amber-400"}`}>
+                    ${balance.toFixed(2)} USDC
+                  </span>
                 </div>
-                <div className="px-4 py-3">
-                  <select
-                    value={year}
-                    onChange={(e) => setYear(Number(e.target.value))}
-                    className="bg-transparent text-green-300 border border-green-700 px-3 py-1 text-sm w-full focus:outline-none focus:border-green-400"
-                  >
-                    {[2025, 2024, 2023, 2022].map((y) => (
-                      <option key={y} value={y} className="bg-black">
-                        {y}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {balance < 10 && (
+                  <div className="mt-3 space-y-2">
+                    <p className="text-amber-400 text-xs">
+                      You need $10.00 to generate a report. Send USDC to:
+                    </p>
+                    <div className="flex items-center gap-2 bg-[#0d0d12] border border-[#2a2a3a] rounded px-3 py-2">
+                      <code className="text-gray-300 text-xs flex-1 truncate font-mono">
+                        {treasuryWallet}
+                      </code>
+                      <button
+                        onClick={() => copyToClipboard(treasuryWallet)}
+                        className="text-gray-500 hover:text-white text-xs transition-colors shrink-0"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                    <p className="text-gray-600 text-xs">
+                      Balance updates automatically within seconds of receiving USDC.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Year selector */}
+              <div className="bg-[#13131a] border border-[#1f1f2e] rounded-lg p-4">
+                <label className="text-gray-500 text-xs uppercase tracking-wide block mb-3">
+                  Tax Year
+                </label>
+                <select
+                  value={year}
+                  onChange={(e) => setYear(Number(e.target.value))}
+                  className="w-full bg-[#0d0d12] text-white border border-[#2a2a3a] rounded px-3 py-2 text-sm focus:outline-none focus:border-violet-500"
+                >
+                  {[2025, 2024, 2023, 2022].map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
               </div>
 
               <button
                 onClick={generateReport}
                 disabled={balance < 10}
-                className="w-full border border-green-400 px-6 py-3 hover:bg-green-400 hover:text-black transition-colors font-bold text-green-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full bg-violet-600 hover:bg-violet-500 disabled:bg-violet-900 disabled:text-violet-600 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-md transition-colors"
               >
                 Generate Report — $10.00 →
               </button>
-              <p className="text-green-700 text-xs">
-                $10 will be deducted from your balance. Processing takes 30–120 seconds depending on transaction volume.
+
+              <p className="text-gray-600 text-xs text-center">
+                Processing takes 30–90 seconds. Do not close this tab.
               </p>
             </>
           )}
 
           {/* Processing */}
           {step === "processing" && (
-            <div className="text-center py-8 space-y-4">
-              <div className="text-green-400 text-lg font-bold animate-pulse">
-                Processing...
-              </div>
-              <div className="text-green-500 text-sm">{progress}</div>
-              <div className="text-green-700 text-xs">
-                This can take 1–2 minutes for wallets with many transactions.
+            <div className="text-center py-12 space-y-4">
+              <div className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" />
+              <div className="text-white font-semibold">Analyzing your wallet...</div>
+              <div className="text-gray-500 text-sm">
+                Fetching transactions and looking up historical prices.
                 <br />
-                Do not close this tab.
+                This takes 30–90 seconds.
               </div>
             </div>
           )}
@@ -220,34 +232,39 @@ export default function TaxPage() {
           {/* Done */}
           {step === "done" && result && (
             <>
-              <div>
-                <h1 className="text-2xl font-bold mb-2 text-green-300">
-                  Report Ready
-                </h1>
-                <p className="text-green-500 text-sm">
-                  {result.transaction_count} taxable events found for {year}.
-                </p>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center text-violet-400">
+                  ✓
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold">Report Ready</h1>
+                  <p className="text-gray-400 text-sm">
+                    {result.transaction_count} taxable events found for {year}
+                  </p>
+                </div>
               </div>
 
-              <div className="border border-green-800">
-                <div className="border-b border-green-800 px-4 py-2 text-green-500 text-xs">
-                  summary
-                </div>
-                <pre className="px-4 py-3 text-green-300 text-xs whitespace-pre-wrap">
+              <div className="bg-[#13131a] border border-[#1f1f2e] rounded-lg p-4">
+                <div className="text-gray-500 text-xs uppercase tracking-wide mb-3">Summary</div>
+                <pre className="text-gray-300 text-xs whitespace-pre-wrap leading-relaxed font-mono">
                   {result.summary}
                 </pre>
               </div>
 
               <button
                 onClick={downloadCsv}
-                className="w-full bg-green-400 text-black px-6 py-3 hover:bg-green-300 transition-colors font-bold"
+                className="w-full bg-violet-600 hover:bg-violet-500 text-white font-semibold py-3 rounded-md transition-colors"
               >
                 Download CSV →
               </button>
 
-              <p className="text-green-700 text-xs">
-                Import this CSV into CoinLedger, Koinly, or TurboTax — or hand
-                it directly to your accountant.
+              <p className="text-gray-600 text-xs text-center">
+                Import into CoinLedger, Koinly, TurboTax, or send to your accountant.
+              </p>
+
+              <p className="text-gray-600 text-xs border border-[#1f1f2e] rounded p-3">
+                USD values are approximate. This is a data preparation tool, not tax advice.
+                Consult a qualified tax professional.
               </p>
             </>
           )}
@@ -255,15 +272,12 @@ export default function TaxPage() {
           {/* Error */}
           {step === "error" && (
             <>
-              <div className="border border-red-900 px-4 py-3 text-red-400 text-sm">
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-400 text-sm">
                 {error}
               </div>
               <button
-                onClick={() => {
-                  setError("");
-                  setStep(wallet ? "form" : "connect");
-                }}
-                className="text-green-500 hover:text-green-300 text-sm transition-colors"
+                onClick={() => { setError(""); setStep(wallet ? "form" : "connect"); }}
+                className="text-gray-400 hover:text-white text-sm transition-colors"
               >
                 ← Try again
               </button>
