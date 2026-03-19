@@ -1,6 +1,6 @@
 import { createClient, type ApiKey } from "./supabase";
 
-const COST_PER_CALL = 0.01;
+export const COST_PER_CALL = 0.01;
 
 type AuthResult =
   | { ok: true; keyData: ApiKey }
@@ -20,7 +20,8 @@ type AuthResult =
  *   $$ language sql security definer;
  */
 export async function authorizeRequest(
-  authHeader: string | null
+  authHeader: string | null,
+  cost: number = COST_PER_CALL
 ): Promise<AuthResult> {
   if (!authHeader?.startsWith("Bearer ")) {
     return { ok: false, status: 401, error: "Missing or invalid Authorization header" };
@@ -35,7 +36,7 @@ export async function authorizeRequest(
 
   const { data, error } = await supabase.rpc("deduct_balance", {
     p_key: key,
-    p_amount: COST_PER_CALL,
+    p_amount: cost,
   });
 
   if (error || !data || data.length === 0) {

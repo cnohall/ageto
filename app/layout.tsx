@@ -4,7 +4,7 @@ import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
   title: "TokenProbe",
-  description: "Solana token intelligence for AI agents. One endpoint, pay per query.",
+  description: "Fix your Solana taxes for $10. Clean CSV export of all your swaps, transfers, and airdrops — including Jupiter, pump.fun, and Raydium. No subscription.",
 };
 
 export default function RootLayout({
