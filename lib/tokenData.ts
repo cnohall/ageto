@@ -1,4 +1,5 @@
-const HELIUS_RPC = `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`;
+const getHeliusRpc = () =>
+  `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`;
 
 export type TokenData = {
   mint: string;
@@ -55,7 +56,7 @@ async function fetchDexScreener(mint: string) {
 // --- Helius (top holder concentration) ---
 
 async function heliusRpc(method: string, params: unknown[]) {
-  const res = await fetch(HELIUS_RPC, {
+  const res = await fetch(getHeliusRpc(), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
