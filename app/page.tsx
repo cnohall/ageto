@@ -68,7 +68,7 @@ export default function Home() {
             Docs
           </a>
           <a
-            href="/api/keys"
+            href="/get-started"
             className="border border-green-700 px-3 py-1 hover:border-green-400 hover:text-green-400 transition-colors"
           >
             Get API Key →
@@ -92,7 +92,7 @@ export default function Home() {
           USDC once, query forever.
         </p>
         <a
-          href="/api/keys"
+          href="/get-started"
           className="inline-block bg-green-400 text-black font-bold px-6 py-3 hover:bg-green-300 transition-colors"
         >
           Get API Key →
